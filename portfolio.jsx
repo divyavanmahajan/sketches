@@ -5,10 +5,11 @@
 const { useState, useEffect, useCallback } = React;
 
 function Frame({ work, ratio, contain, className, style }) {
+  const [imgError, setImgError] = useState(false);
   const defaultRatio = '3 / 4';
   const cls = ['frame'];
   if (contain) cls.push('frame--contain');
-  const hasImg = work && work.image;
+  const hasImg = work && work.image && !imgError;
   if (!hasImg) cls.push('ph');
   if (className) cls.push(className);
   const label = work
@@ -17,7 +18,7 @@ function Frame({ work, ratio, contain, className, style }) {
   return (
     <div className={cls.join(' ')} style={{ aspectRatio: ratio || defaultRatio, ...style }}>
       {hasImg
-        ? <img src={work.image} alt={work.title || ''} />
+        ? <img src={work.image} alt={work.title || ''} onError={() => setImgError(true)} />
         : <span className="ph-label">{label}</span>}
     </div>
   );
@@ -77,26 +78,32 @@ function WorkBody({ onOpen, works, worksError }) {
         <span className="overline">Selected work</span>
         <span className="overline">2023 — 2025</span>
       </div>
-      <div className="entries">
-        {(works || []).map((w, i) => (
-          <article
-            className="entry" key={i} tabIndex={0} role="button"
-            onClick={() => onOpen(i)}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(i); } }}
-          >
-            <span className="idx">{String(i + 1).padStart(2, '0')}</span>
-            <div className="row">
-              <Frame work={w} className="e-frame" />
-              <div className="e-text">
-                <h3 className="et">{w.title}</h3>
-                <div className="em">{w.medium} · {w.dimensions} · {w.year}</div>
-                <p className="en">{w.note}</p>
-                <span className="e-view">View drawing →</span>
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
+      {(!works || works.length === 0)
+        ? <p className="empty-state">No works yet — check back soon.</p>
+        : <div className="entries">
+            {works.map((w, i) => {
+              const meta = [w.medium, w.dimensions, w.year != null ? String(w.year) : null].filter(Boolean).join(' · ');
+              return (
+                <article
+                  className="entry" key={i} tabIndex={0} role="button"
+                  onClick={() => onOpen(i)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(i); } }}
+                >
+                  <span className="idx">{String(i + 1).padStart(2, '0')}</span>
+                  <div className="row">
+                    <Frame work={w} className="e-frame" />
+                    <div className="e-text">
+                      <h3 className="et">{w.title}</h3>
+                      {meta && <div className="em">{meta}</div>}
+                      {w.note && <p className="en">{w.note}</p>}
+                      <span className="e-view">View drawing →</span>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+      }
       <footer className="body-foot">
         <span className="overline">Gothenburg · Sverige</span>
         <span className="overline">{(works || []).length} drawings</span>
@@ -166,13 +173,13 @@ function Detail({ index, works, onBack, onPrev, onNext, theme, setTheme }) {
         <div className="meta-mid">
           <span className="overline">Drawing № {String(index + 1).padStart(2, '0')}</span>
           <h2>{w.title}</h2>
-          <span className="yr">{w.year}</span>
-          <p>{w.note}</p>
+          {w.year != null && <span className="yr">{String(w.year)}</span>}
+          {w.note && <p>{w.note}</p>}
           <div className="spec">
-            <div className="c"><span className="meta">Medium</span><span className="v">{w.medium}</span></div>
-            <div className="c"><span className="meta">Size</span><span className="v">{w.dimensions}</span></div>
-            <div className="c"><span className="meta">Place</span><span className="v">{w.place}</span></div>
-            <div className="c"><span className="meta">Year</span><span className="v">{w.year}</span></div>
+            {w.medium && <div className="c"><span className="meta">Medium</span><span className="v">{w.medium}</span></div>}
+            {w.dimensions && <div className="c"><span className="meta">Size</span><span className="v">{w.dimensions}</span></div>}
+            {w.place && <div className="c"><span className="meta">Place</span><span className="v">{w.place}</span></div>}
+            {w.year != null && <div className="c"><span className="meta">Year</span><span className="v">{String(w.year)}</span></div>}
           </div>
         </div>
         <div className="pager">

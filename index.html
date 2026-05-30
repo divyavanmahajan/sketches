@@ -127,6 +127,11 @@
   .d-immersive .pager button:last-child{text-align:right;}
   .d-immersive .pager button:hover{color:var(--accent);}
 
+  /* ---------------- LOADING / ERROR ---------------- */
+  .loading-state { display:flex; align-items:center; justify-content:center; min-height:100vh; font-family:var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-soft); background:var(--paper); }
+  .error-panel { padding:60px 64px; }
+  .error-panel p { font-family:var(--serif-body); font-size:18px; color:var(--ink-soft); line-height:1.6; }
+
   /* ---------------- RESPONSIVE ---------------- */
   @media (max-width:980px){
     .sketch{grid-template-columns:1fr;}

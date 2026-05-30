@@ -8,6 +8,7 @@ import yaml
 STAGING_FILES = {
     'content/works-new.yaml': ('content/works.yaml', 'content/works-error.txt'),
     'content/about-new.yaml': ('content/about.yaml', 'content/about-error.txt'),
+    'content/site-new.yaml':  ('content/site.yaml',  'content/site-error.txt'),
 }
 
 def format_error(staging_file, exc):

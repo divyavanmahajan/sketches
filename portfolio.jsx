@@ -34,14 +34,30 @@ function ThemeToggle({ theme, setTheme, variant }) {
   );
 }
 
+function yearRange(works) {
+  const years = (works || []).map(w => parseInt(w.year)).filter(n => !isNaN(n));
+  if (years.length === 0) return '';
+  const min = Math.min(...years);
+  const max = Math.max(...years);
+  return min === max ? String(min) : `${min} \u2014 ${max}`;
+}
+
 /* ----------------------------------------------------------- HOME (Sketchbook) */
-function Home({ onOpen, onNav, page, theme, setTheme, works, about, worksError, aboutError }) {
+function Home({ onOpen, onNav, page, theme, setTheme, works, about, site, worksError, aboutError }) {
+  const title = site?.title || 'Sketches from Sweden';
+  const blurb = site?.blurb || '';
+  const sketchbook = site?.sketchbook || '';
+  const signature = site?.signature || '';
+  const titleParts = title.split(' from ');
   return (
     <div className="sketch">
       <aside className="rail">
-        <span className="mono-sm">Sketchbook № 07</span>
-        <h1>Sketches<br />from<br />Sweden</h1>
-        <p className="desc">Graphite &amp; watercolour drawings, kept the way they were made — in order, with their notes.</p>
+        {sketchbook && <span className="mono-sm">{sketchbook}</span>}
+        <h1>{titleParts.length === 2
+          ? <>{titleParts[0]}<br />from<br />{titleParts[1]}</>
+          : title}
+        </h1>
+        {blurb && <p className="desc">{blurb}</p>}
         <nav className="navlist">
           <a href="#" className={page === 'work' ? 'is-active' : ''} onClick={(e) => { e.preventDefault(); onNav('work'); }}><span className="num">01</span> Work</a>
           <a href="#" className={page === 'about' ? 'is-active' : ''} onClick={(e) => { e.preventDefault(); onNav('about'); }}><span className="num">02</span> About</a>
@@ -49,11 +65,11 @@ function Home({ onOpen, onNav, page, theme, setTheme, works, about, worksError, 
         </nav>
         <div className="rail-foot">
           <ThemeToggle theme={theme} setTheme={setTheme} />
-          <span className="sig">— from the studio, Gothenburg</span>
+          {signature && <span className="sig">— {signature}</span>}
         </div>
       </aside>
       {page === 'about'
-        ? <AboutBody about={about} aboutError={aboutError} portrait={works && works[0]} />
+        ? <AboutBody about={about} aboutError={aboutError} portrait={works && works[0]} signature={signature} />
         : page === 'help'
         ? <HelpBody />
         : <WorkBody onOpen={onOpen} works={works} worksError={worksError} />}
@@ -67,7 +83,7 @@ function WorkBody({ onOpen, works, worksError }) {
       <main className="body">
         <div className="ctitle">
           <span className="overline">Selected work</span>
-          <span className="overline">2023 — 2025</span>
+          {yearRange(works) && <span className="overline">{yearRange(works)}</span>}
         </div>
         <div className="error-panel">
           <p>{worksError}</p>
@@ -79,7 +95,7 @@ function WorkBody({ onOpen, works, worksError }) {
     <main className="body">
       <div className="ctitle">
         <span className="overline">Selected work</span>
-        <span className="overline">2023 — 2025</span>
+        {yearRange(works) && <span className="overline">{yearRange(works)}</span>}
       </div>
       {(!works || works.length === 0)
         ? <p className="empty-state">No works yet — check back soon.</p>
@@ -115,7 +131,7 @@ function WorkBody({ onOpen, works, worksError }) {
   );
 }
 
-function AboutBody({ about, aboutError, portrait }) {
+function AboutBody({ about, aboutError, portrait, signature }) {
   if (aboutError) {
     return (
       <main className="body about">
@@ -153,7 +169,7 @@ function AboutBody({ about, aboutError, portrait }) {
               ))}
             </div>
           )}
-          <span className="about-sig">— from the studio</span>
+          {signature && <span className="about-sig">— {signature}</span>}
         </div>
       </div>
     </main>
@@ -172,13 +188,15 @@ function HelpBody() {
     Promise.all([
       fetch('./content/works-error.txt'),
       fetch('./content/about-error.txt'),
+      fetch('./content/site-error.txt'),
     ])
-      .then(([wr, ar]) => Promise.all([
+      .then(([wr, ar, sr]) => Promise.all([
         wr.ok ? wr.text() : Promise.resolve(''),
         ar.ok ? ar.text() : Promise.resolve(''),
+        sr.ok ? sr.text() : Promise.resolve(''),
       ]))
-      .then(([worksErr, aboutErr]) => {
-        setErrorFiles({ works: worksErr.trim(), about: aboutErr.trim() });
+      .then(([worksErr, aboutErr, siteErr]) => {
+        setErrorFiles({ works: worksErr.trim(), about: aboutErr.trim(), site: siteErr.trim() });
         setErrorLoading(false);
       })
       .catch(() => {
@@ -198,7 +216,7 @@ function HelpBody() {
 
       <section className="help-section">
         <h3>How this site works</h3>
-        <p>Two files control all the content on this site: <code>works-new.yaml</code> for the drawings, and <code>about-new.yaml</code> for the About page. When you save a change to either file, an automated check runs — if your edit is valid, the site updates within about 30 seconds.</p>
+        <p>Three files control all the content on this site: <code>works-new.yaml</code> for the drawings, <code>about-new.yaml</code> for the About page, and <code>site-new.yaml</code> for the site title, description, and signature. When you save a change to any of these files, an automated check runs — if your edit is valid, the site updates within about 30 seconds.</p>
         <p><strong>If your change does not appear after a minute, go to the Troubleshooting section below</strong> — that is the only place errors are reported. You will not receive an email or notification.</p>
       </section>
 
@@ -232,6 +250,18 @@ function HelpBody() {
       </section>
 
       <section className="help-section">
+        <h3>Update site details</h3>
+        <p>Open <code>content/site-new.yaml</code>. The fields are:</p>
+        <ul>
+          <li><code>title</code> — the site title shown in the browser tab and the rail heading</li>
+          <li><code>blurb</code> — the short description below the title in the left rail</li>
+          <li><code>signature</code> — the closing line shown in the rail footer and on the About page</li>
+          <li><code>sketchbook</code> — the small label above the title (e.g. "Sketchbook № 07")</li>
+        </ul>
+        <p>Edit the fields you want to change and commit.</p>
+      </section>
+
+      <section className="help-section">
         <h3>Update the About page</h3>
         <p>Open <code>content/about-new.yaml</code>. The fields are:</p>
         <ul>
@@ -253,7 +283,7 @@ function HelpBody() {
         {errorFetchFailed && <p className="err-fetch">Couldn't check for errors — make sure you're connected and refresh.</p>}
         {errorLoading && !errorFetchFailed && <p className="err-loading">Checking for errors…</p>}
         {!errorLoading && !errorFetchFailed && (
-          (!errorFiles?.works && !errorFiles?.about)
+          (!errorFiles?.works && !errorFiles?.about && !errorFiles?.site)
             ? <p className="no-errors">No errors — your last update was successful.</p>
             : <>
                 {errorFiles?.works && <div className="err-block">
@@ -265,6 +295,11 @@ function HelpBody() {
                   <span className="err-label">About update error</span>
                   <pre className="err-pre">{errorFiles.about}</pre>
                   <p className="err-action">To fix this: open <code>content/about-new.yaml</code> in GitHub, correct the issue described above, and commit again.</p>
+                </div>}
+                {errorFiles?.site && <div className="err-block">
+                  <span className="err-label">Site details update error</span>
+                  <pre className="err-pre">{errorFiles.site}</pre>
+                  <p className="err-action">To fix this: open <code>content/site-new.yaml</code> in GitHub, correct the issue described above, and commit again.</p>
                 </div>}
               </>
         )}
@@ -315,6 +350,7 @@ function App() {
 
   const [works, setWorks] = useState(null);
   const [about, setAbout] = useState(null);
+  const [site, setSite] = useState(null);
   const [loading, setLoading] = useState(true);
   const [worksError, setWorksError] = useState(null);
   const [aboutError, setAboutError] = useState(null);
@@ -325,11 +361,12 @@ function App() {
     Promise.all([
       fetch('./content/works.yaml'),
       fetch('./content/about.yaml'),
+      fetch('./content/site.yaml'),
     ])
-      .then(([worksRes, aboutRes]) =>
-        Promise.all([worksRes.text(), aboutRes.text()])
+      .then(([worksRes, aboutRes, siteRes]) =>
+        Promise.all([worksRes.text(), aboutRes.text(), siteRes.text()])
       )
-      .then(([worksText, aboutText]) => {
+      .then(([worksText, aboutText, siteText]) => {
         // Parse works
         try {
           const parsed = jsyaml.load(worksText);
@@ -361,6 +398,14 @@ function App() {
           setAbout({});
         }
 
+        // Parse site
+        try {
+          const parsed = jsyaml.load(siteText);
+          setSite(parsed && typeof parsed === 'object' ? parsed : {});
+        } catch (e) {
+          setSite({});
+        }
+
         setLoading(false);
       })
       .catch(() => {
@@ -368,6 +413,7 @@ function App() {
         setAboutError("Couldn't load content — check your connection and refresh.");
         setWorks([]);
         setAbout({});
+        setSite({});
         setLoading(false);
       });
   }, []);
@@ -390,6 +436,10 @@ function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, [view.name, back, prev, next]);
 
+  useEffect(() => {
+    if (site?.title) document.title = site.title;
+  }, [site]);
+
   if (loading) {
     return <div className="loading-state">Loading…</div>;
   }
@@ -401,7 +451,7 @@ function App() {
           ? <Home
               onOpen={open} onNav={setPage} page={page}
               theme={theme} setTheme={setTheme}
-              works={works} about={about}
+              works={works} about={about} site={site}
               worksError={worksError} aboutError={aboutError}
             />
           : <Detail

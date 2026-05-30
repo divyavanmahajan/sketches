@@ -45,7 +45,7 @@ Everything the site displays comes from three files in the `content/` folder:
 | File | What it controls |
 |---|---|
 | `content/works-new.yaml` | Your list of artworks — title, year, medium, image, notes |
-| `content/about-new.yaml` | Your About page — your statement, bio paragraphs, and facts |
+| `content/about-new.yaml` | Your About page — portrait image, statement, bio paragraphs, and facts |
 | `content/site-new.yaml` | Site-wide text — site title, tagline, sketchbook label, studio signature |
 
 To make a change: open the file in GitHub, click the pencil (edit) icon, make your edits, and click **Commit changes**. Within about 30 seconds the site updates automatically.

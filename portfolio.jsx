@@ -69,7 +69,7 @@ function Home({ onOpen, onNav, page, theme, setTheme, works, about, site, worksE
         </div>
       </aside>
       {page === 'about'
-        ? <AboutBody about={about} aboutError={aboutError} portrait={works && works[0]} signature={signature} />
+        ? <AboutBody about={about} aboutError={aboutError} works={works} signature={signature} />
         : page === 'help'
         ? <HelpBody />
         : <WorkBody onOpen={onOpen} works={works} worksError={worksError} />}
@@ -131,7 +131,10 @@ function WorkBody({ onOpen, works, worksError }) {
   );
 }
 
-function AboutBody({ about, aboutError, portrait, signature }) {
+function AboutBody({ about, aboutError, works, signature }) {
+  const portraitWork = about && about.portrait
+    ? { image: about.portrait }
+    : (works && works[0]) || null;
   if (aboutError) {
     return (
       <main className="body about">
@@ -153,7 +156,7 @@ function AboutBody({ about, aboutError, portrait, signature }) {
       </div>
       <div className="about-grid">
         <div className="about-portrait">
-          <Frame work={portrait || null} ratio="3 / 4" className="ap-frame" />
+          <Frame work={portraitWork} ratio="3 / 4" className="ap-frame" />
           <span className="ap-cap">In the studio</span>
         </div>
         <div className="about-text">
@@ -268,8 +271,9 @@ function HelpBody() {
           <li><code>lede</code> — the large italic opening line</li>
           <li><code>bio</code> — a list of paragraphs (each starts with two spaces and a dash)</li>
           <li><code>facts</code> — the table rows (each has a <code>label</code> and a <code>value</code>)</li>
+          <li><code>portrait</code> — the image shown on the About page (filename only, e.g. <code>studio-photo.jpg</code>). If omitted, the first drawing in your gallery is used instead.</li>
         </ul>
-        <p>Edit the fields you want to change and commit.</p>
+        <p>To change the portrait: upload your photo to <code>content/images/</code>, then add or update the <code>portrait</code> line in <code>about-new.yaml</code> and commit.</p>
       </section>
 
       <section className="help-section">

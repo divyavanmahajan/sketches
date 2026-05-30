@@ -357,6 +357,26 @@ function App() {
 
   useEffect(() => { localStorage.setItem('sfs-theme', theme); }, [theme]);
 
+  // Seed the initial history entry so popstate has something to fall back to
+  useEffect(() => {
+    window.history.replaceState({ view: 'home', page: 'work' }, '');
+  }, []);
+
+  // Sync browser back/forward to React state
+  useEffect(() => {
+    const onPop = (e) => {
+      const s = e.state;
+      if (!s || s.view === 'home') {
+        setView({ name: 'home', index: 0 });
+        setPage(s?.page || 'work');
+      } else if (s.view === 'detail') {
+        setView({ name: 'detail', index: s.index });
+      }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
   useEffect(() => {
     Promise.all([
       fetch('./content/works.yaml'),
@@ -420,10 +440,26 @@ function App() {
 
   const worksLen = works ? works.length : 0;
 
-  const open = useCallback((i) => { setView({ name: 'detail', index: i }); window.scrollTo(0, 0); }, []);
-  const back = useCallback(() => setView({ name: 'home', index: 0 }), []);
-  const prev = useCallback(() => setView((v) => ({ name: 'detail', index: (v.index - 1 + worksLen) % worksLen })), [worksLen]);
-  const next = useCallback(() => setView((v) => ({ name: 'detail', index: (v.index + 1) % worksLen })), [worksLen]);
+  const open = useCallback((i) => {
+    window.history.pushState({ view: 'detail', index: i }, '');
+    setView({ name: 'detail', index: i });
+    window.scrollTo(0, 0);
+  }, []);
+  const back = useCallback(() => window.history.back(), []);
+  const nav = useCallback((newPage) => {
+    window.history.pushState({ view: 'home', page: newPage }, '');
+    setPage(newPage);
+  }, []);
+  const prev = useCallback(() => setView((v) => {
+    const idx = (v.index - 1 + worksLen) % worksLen;
+    window.history.replaceState({ view: 'detail', index: idx }, '');
+    return { name: 'detail', index: idx };
+  }), [worksLen]);
+  const next = useCallback(() => setView((v) => {
+    const idx = (v.index + 1) % worksLen;
+    window.history.replaceState({ view: 'detail', index: idx }, '');
+    return { name: 'detail', index: idx };
+  }), [worksLen]);
 
   useEffect(() => {
     const onKey = (e) => {
@@ -449,7 +485,7 @@ function App() {
       <div key={view.name + view.index + page} className="view-fade">
         {view.name === 'home'
           ? <Home
-              onOpen={open} onNav={setPage} page={page}
+              onOpen={open} onNav={nav} page={page}
               theme={theme} setTheme={setTheme}
               works={works} about={about} site={site}
               worksError={worksError} aboutError={aboutError}

@@ -45,6 +45,7 @@ function Home({ onOpen, onNav, page, theme, setTheme, works, about, worksError, 
         <nav className="navlist">
           <a href="#" className={page === 'work' ? 'is-active' : ''} onClick={(e) => { e.preventDefault(); onNav('work'); }}><span className="num">01</span> Work</a>
           <a href="#" className={page === 'about' ? 'is-active' : ''} onClick={(e) => { e.preventDefault(); onNav('about'); }}><span className="num">02</span> About</a>
+          <a href="#" className={page === 'help' ? 'is-active' : ''} onClick={(e) => { e.preventDefault(); onNav('help'); }}><span className="num">03</span> Help</a>
         </nav>
         <div className="rail-foot">
           <ThemeToggle theme={theme} setTheme={setTheme} />
@@ -53,6 +54,8 @@ function Home({ onOpen, onNav, page, theme, setTheme, works, about, worksError, 
       </aside>
       {page === 'about'
         ? <AboutBody about={about} aboutError={aboutError} portrait={works && works[0]} />
+        : page === 'help'
+        ? <HelpBody />
         : <WorkBody onOpen={onOpen} works={works} worksError={worksError} />}
     </div>
   );
@@ -153,6 +156,119 @@ function AboutBody({ about, aboutError, portrait }) {
           <span className="about-sig">— from the studio</span>
         </div>
       </div>
+    </main>
+  );
+}
+
+/* ----------------------------------------------------------- HELP */
+function HelpBody() {
+  const [errorFiles, setErrorFiles] = useState(null);
+  const [errorLoading, setErrorLoading] = useState(true);
+  const [errorFetchFailed, setErrorFetchFailed] = useState(false);
+
+  function fetchErrors() {
+    setErrorLoading(true);
+    setErrorFetchFailed(false);
+    Promise.all([
+      fetch('./content/works-error.txt'),
+      fetch('./content/about-error.txt'),
+    ])
+      .then(([wr, ar]) => Promise.all([
+        wr.ok ? wr.text() : Promise.resolve(''),
+        ar.ok ? ar.text() : Promise.resolve(''),
+      ]))
+      .then(([worksErr, aboutErr]) => {
+        setErrorFiles({ works: worksErr.trim(), about: aboutErr.trim() });
+        setErrorLoading(false);
+      })
+      .catch(() => {
+        setErrorFetchFailed(true);
+        setErrorLoading(false);
+      });
+  }
+
+  useEffect(() => { fetchErrors(); }, []);
+
+  return (
+    <main className="body help">
+      <div className="ctitle">
+        <span className="overline">Help</span>
+        <span className="overline">Using this site</span>
+      </div>
+
+      <section className="help-section">
+        <h3>How this site works</h3>
+        <p>Two files control all the content on this site: <code>works-new.yaml</code> for the drawings, and <code>about-new.yaml</code> for the About page. When you save a change to either file, an automated check runs — if your edit is valid, the site updates within about 30 seconds.</p>
+        <p><strong>If your change does not appear after a minute, go to the Troubleshooting section below</strong> — that is the only place errors are reported. You will not receive an email or notification.</p>
+      </section>
+
+      <section className="help-section">
+        <h3>Add a new sketch</h3>
+        <ol>
+          <li>Go to the repository on GitHub.</li>
+          <li>Navigate to <code>content/images/</code>, click <strong>Add file → Upload files</strong>, and upload your scan.</li>
+          <li>Navigate to <code>content/works-new.yaml</code>, click the pencil icon (<strong>Edit this file</strong>).</li>
+          <li>Add a new entry at the position you want. Each entry looks like this:
+            <pre className="yaml-eg">{`- title: Your Title\n  year: "2025"\n  medium: Graphite on paper\n  dimensions: 30 × 42 cm\n  place: Gothenburg\n  image: your-filename.jpg\n  note: A short note about this drawing.`}</pre>
+          </li>
+          <li>Click <strong>Commit changes</strong>.</li>
+          <li>Wait about 30 seconds. The site updates automatically if the entry is valid.</li>
+        </ol>
+      </section>
+
+      <section className="help-section">
+        <h3>Change a sketch</h3>
+        <p>Open <code>content/works-new.yaml</code> in GitHub, find the entry by title, update the field you want to change, and commit.</p>
+      </section>
+
+      <section className="help-section">
+        <h3>Remove a sketch</h3>
+        <p>Open <code>content/works-new.yaml</code>, delete the entire entry block — from the <code>- title:</code> line to the last field of that entry — and commit. You can also delete the image file from <code>content/images/</code> if you no longer need it.</p>
+      </section>
+
+      <section className="help-section">
+        <h3>Change the order</h3>
+        <p>Open <code>content/works-new.yaml</code>, cut an entry block and paste it in the new position, then commit. The drawings appear on the site in the same order as they appear in the file.</p>
+      </section>
+
+      <section className="help-section">
+        <h3>Update the About page</h3>
+        <p>Open <code>content/about-new.yaml</code>. The fields are:</p>
+        <ul>
+          <li><code>lede</code> — the large italic opening line</li>
+          <li><code>bio</code> — a list of paragraphs (each starts with two spaces and a dash)</li>
+          <li><code>facts</code> — the table rows (each has a <code>label</code> and a <code>value</code>)</li>
+        </ul>
+        <p>Edit the fields you want to change and commit.</p>
+      </section>
+
+      <section className="help-section">
+        <h3>YAML quick reference</h3>
+        <pre className="yaml-eg">{`Each drawing is a block starting with:   - title: Name\nFields are indented two spaces:            year: "2025"\nText with colons or apostrophes:           note: "It's here: done."\nA line starting with # is a comment and is ignored.\n\nCommon mistakes:\n  Missing space after colon:  title:Name  ✗   title: Name  ✓\n  Wrong indentation:          use 2 spaces, not 4 or a tab\n  Unquoted special characters: use quotes if your text contains : or '`}</pre>
+      </section>
+
+      <section className="help-section" id="troubleshooting">
+        <h3>Troubleshooting <button className="refresh-btn" onClick={fetchErrors}>Refresh</button></h3>
+        <p>If an update did not go live, the reason will appear here. Check this section if your change has not appeared after about a minute.</p>
+        {errorFetchFailed && <p className="err-fetch">Couldn't check for errors — make sure you're connected and refresh.</p>}
+        {errorLoading && !errorFetchFailed && <p className="err-loading">Checking for errors…</p>}
+        {!errorLoading && !errorFetchFailed && (
+          (!errorFiles?.works && !errorFiles?.about)
+            ? <p className="no-errors">No errors — your last update was successful.</p>
+            : <>
+                {errorFiles?.works && <div className="err-block">
+                  <span className="err-label">Works update error</span>
+                  <pre className="err-pre">{errorFiles.works}</pre>
+                  <p className="err-action">To fix this: open <code>content/works-new.yaml</code> in GitHub, correct the issue described above, and commit again.</p>
+                </div>}
+                {errorFiles?.about && <div className="err-block">
+                  <span className="err-label">About update error</span>
+                  <pre className="err-pre">{errorFiles.about}</pre>
+                  <p className="err-action">To fix this: open <code>content/about-new.yaml</code> in GitHub, correct the issue described above, and commit again.</p>
+                </div>}
+              </>
+        )}
+      </section>
     </main>
   );
 }

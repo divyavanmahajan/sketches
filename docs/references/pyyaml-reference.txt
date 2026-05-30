@@ -1,0 +1,11 @@
+# pyyaml Reference
+
+Populate with pyyaml API reference before implementing the GitHub Action validation step.
+
+Key APIs to document:
+- yaml.safe_load(string) — parse YAML safely (no arbitrary Python objects)
+- yaml.YAMLError — base exception class; has .problem, .problem_mark (line/column)
+- problem_mark.line, problem_mark.column — 0-indexed position of the error
+- Pre-installed on GitHub Actions ubuntu-latest runner (no pip install needed)
+
+Source: https://pyyaml.org/wiki/PyYAMLDocumentation

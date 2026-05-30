@@ -68,7 +68,30 @@ Occasionally this repository may be updated with improvements to the site design
 2. Click **Sync fork** (shown when your fork is behind this one).
 3. Click **Update branch**.
 
-Your `content/` files and images are yours — they will not be overwritten by a sync. If GitHub ever shows a conflict warning during a sync, stop and ask a developer for help rather than proceeding.
+Your `content/` files and images are yours — they will not be overwritten by a sync as long as the update goes smoothly.
+
+**If GitHub shows a conflict warning:**
+
+A conflict means the update touched a file you have also changed. This is rare, but if it happens:
+
+1. Click **Resolve conflicts** (GitHub will show the conflicting files).
+2. Open each conflicting file. You will see something like this:
+
+   ```
+   <<<<<<< HEAD
+   - title: My actual painting
+     year: "2024"
+   =======
+   - title: Sample artwork
+     year: "2023"
+   >>>>>>> upstream/main
+   ```
+
+3. Your content is between `<<<<<<< HEAD` and `=======`. The incoming update is between `=======` and `>>>>>>> upstream/main`.
+4. Delete the three marker lines (`<<<<<<<`, `=======`, `>>>>>>>`) and the incoming block below the `=======`. Keep only your content.
+5. Click **Mark as resolved** → **Commit merge**.
+
+If you are unsure which lines are yours, look for your own titles, text, and image filenames — those are always yours to keep.
 
 ---
 

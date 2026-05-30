@@ -1,0 +1,36 @@
+name: Promote content
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - content/works-new.yaml
+      - content/about-new.yaml
+      - content/site-new.yaml
+
+jobs:
+  validate-and-promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Validate and promote staging files
+        run: python3 .github/scripts/validate-yaml.py
+
+      - name: Commit promoted files
+        run: |
+          git add content/works.yaml content/about.yaml content/site.yaml content/works-error.txt content/about-error.txt content/site-error.txt
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "[skip ci] content: promote staging files"
+            git push
+          fi

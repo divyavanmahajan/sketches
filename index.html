@@ -127,6 +127,29 @@
   .d-immersive .pager button:last-child{text-align:right;}
   .d-immersive .pager button:hover{color:var(--accent);}
 
+  /* ---------------- LOADING / ERROR ---------------- */
+  .loading-state { display:flex; align-items:center; justify-content:center; min-height:100vh; font-family:var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-soft); background:var(--paper); }
+  .error-panel { padding:60px 64px; }
+  .error-panel p { font-family:var(--serif-body); font-size:18px; color:var(--ink-soft); line-height:1.6; }
+  .empty-state { font-family:var(--serif-body); font-size:18px; color:var(--ink-soft); padding:48px 0; }
+
+  /* ---------------- HELP ---------------- */
+  .help .help-section{margin-bottom:52px;}
+  .help .help-section h3{font-family:var(--serif-display);font-weight:500;font-size:28px;line-height:1.1;margin:0 0 18px;color:var(--ink);}
+  .help .help-section p,.help .help-section li{font-family:var(--serif-body);font-size:18px;line-height:1.66;color:var(--ink-soft);margin:0 0 12px;}
+  .help .help-section ol,.help .help-section ul{padding-left:24px;}
+  .help .help-section ol li{margin-bottom:10px;}
+  .help pre.yaml-eg{font-family:var(--mono);font-size:12px;line-height:1.7;background:var(--paper-2);color:var(--ink);padding:20px 24px;white-space:pre-wrap;word-break:break-word;margin:16px 0;border-left:2px solid var(--accent);}
+  .help code{font-family:var(--mono);font-size:12px;background:var(--paper-2);padding:1px 5px;color:var(--ink);}
+  .no-errors{font-family:var(--serif-display);font-style:italic;color:var(--ink-soft);font-size:20px;}
+  .err-block{margin-bottom:32px;}
+  .err-label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+  .err-pre{font-family:var(--mono);font-size:12px;line-height:1.7;background:var(--paper-2);color:var(--ink);padding:20px 24px;white-space:pre-wrap;word-break:break-word;margin:0 0 14px;}
+  .err-action{font-family:var(--serif-body);font-size:16px;color:var(--ink-soft);margin:0;}
+  .refresh-btn{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);background:none;border:0;cursor:pointer;padding:0 0 0 16px;vertical-align:middle;}
+  .refresh-btn:hover{text-decoration:underline;}
+  .err-loading,.err-fetch{font-family:var(--serif-body);font-size:17px;color:var(--ink-soft);font-style:italic;}
+
   /* ---------------- RESPONSIVE ---------------- */
   @media (max-width:980px){
     .sketch{grid-template-columns:1fr;}
@@ -153,6 +176,7 @@
     <text x="50" y="88" font-family="Georgia, serif" font-style="italic" font-size="9" fill="#2b2823" text-anchor="middle">Sketches</text>
   </svg>
 </template>
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>

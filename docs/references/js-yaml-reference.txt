@@ -1,0 +1,11 @@
+# js-yaml Reference
+
+Populate with the js-yaml API reference before implementing YAML parsing steps.
+
+Key APIs to document:
+- jsyaml.load(string, options) — parse a YAML string, returns JS object
+- jsyaml.dump(object) — serialize to YAML string
+- Error object shape: YAMLException with .message, .mark.line, .mark.column
+- CDN URL: https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js
+
+Source: https://github.com/nodeca/js-yaml

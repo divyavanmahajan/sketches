@@ -1,0 +1,11 @@
+# Keep the artist's content files when merging upstream code updates.
+# This protects staged YAML files and images from being overwritten
+# during a local `git pull upstream main`.
+#
+# To activate, run once after cloning:
+#   git config merge.ours.driver true
+
+content/works-new.yaml   merge=ours
+content/about-new.yaml   merge=ours
+content/site-new.yaml    merge=ours
+content/images/**        merge=ours

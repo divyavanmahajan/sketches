@@ -1,11 +1,68 @@
 # pyyaml Reference
 
-Populate with pyyaml API reference before implementing the GitHub Action validation step.
+Version: 6.x (pre-installed on GitHub Actions ubuntu-latest — no pip install needed)
+Used in: .github/scripts/validate-yaml.py
 
-Key APIs to document:
-- yaml.safe_load(string) — parse YAML safely (no arbitrary Python objects)
-- yaml.YAMLError — base exception class; has .problem, .problem_mark (line/column)
-- problem_mark.line, problem_mark.column — 0-indexed position of the error
-- Pre-installed on GitHub Actions ubuntu-latest runner (no pip install needed)
+## Load / parse
+
+  yaml.safe_load(string)
+    Parses a YAML string using the SafeLoader.
+    Returns a Python dict, list, str, int, float, bool, or None.
+    Raises yaml.YAMLError (or a subclass) on parse failure.
+    Use this — never yaml.load() without a Loader argument (security risk).
+
+  yaml.safe_load_all(string)
+    Parses a multi-document YAML string. Returns a generator.
+    Not used in this project.
+
+## Exceptions
+
+  yaml.YAMLError
+    Base class for all pyyaml errors. Subclasses used in practice:
+      yaml.scanner.ScannerError   — tokenisation failures (bad characters, wrong indent)
+      yaml.parser.ParserError     — structural failures (unclosed block, bad mapping)
+
+    Useful attributes (available when the error has position information):
+      e.problem           — short string describing what went wrong
+      e.problem_mark      — Mark object for the error position (may be None)
+        .name             — source name (often "<unicode string>")
+        .line             — 0-indexed line number
+        .column           — 0-indexed column number
+        .index            — character offset from start of input
+      e.context           — short string describing what was being parsed (may be None)
+      e.context_mark      — Mark object for where the context started (may be None)
+
+## Usage pattern in this project
+
+  import yaml
+
+  try:
+      data = yaml.safe_load(content)
+      # data is a Python object; None if content is empty
+  except yaml.YAMLError as e:
+      mark = getattr(e, 'problem_mark', None)
+      if mark:
+          line = mark.line + 1      # convert to 1-indexed for display
+          col  = mark.column + 1
+          problem = getattr(e, 'problem', str(e))
+          msg = f"Line {line}, column {col}: {problem}"
+      else:
+          msg = str(e)
+
+## Plain-English error formatting (used in validate-yaml.py)
+
+  The Action formats errors as:
+    "Line N in <filename>: <e.problem>. <hint>"
+  Hints are looked up by matching e.problem against known patterns
+  (e.g. "mapping values are not allowed" → "Check that every field name
+  is followed by a colon and a space.").
+
+## Notes
+
+  - yaml.safe_load() of an empty string returns None — treat as valid (empty list).
+  - Unquoted integers are returned as Python ints; this is fine since the live
+    file is promoted as-is and js-yaml handles the same coercion in the browser.
+  - pyyaml accepts YAML 1.1 (unlike js-yaml 4.x which targets YAML 1.2); in
+    practice the files used here are compatible with both.
 
 Source: https://pyyaml.org/wiki/PyYAMLDocumentation

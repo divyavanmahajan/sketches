@@ -1,11 +1,58 @@
 # js-yaml Reference
 
-Populate with the js-yaml API reference before implementing YAML parsing steps.
+Version: 4.x (CDN: https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js)
+Used in: portfolio.jsx (browser, loaded as window.jsyaml)
 
-Key APIs to document:
-- jsyaml.load(string, options) — parse a YAML string, returns JS object
-- jsyaml.dump(object) — serialize to YAML string
-- Error object shape: YAMLException with .message, .mark.line, .mark.column
-- CDN URL: https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js
+## Load / parse
+
+  jsyaml.load(string)
+    Parses a YAML string and returns a JavaScript value.
+    Uses DEFAULT_SCHEMA — accepts standard YAML types only (no JS-specific tags).
+    Returns null for an empty string.
+    Throws jsyaml.YAMLException on parse failure.
+
+  jsyaml.loadAll(string, iterator)
+    Parses a multi-document YAML string. Calls iterator once per document.
+    Not used in this project.
+
+## Dump / serialise
+
+  jsyaml.dump(object, options)
+    Serialises a JavaScript value to a YAML string.
+    Not used in this project.
+
+## Exceptions
+
+  jsyaml.YAMLException
+    Thrown by jsyaml.load() on invalid YAML.
+    Properties:
+      .message  — human-readable description including position
+      .mark     — position object (not always present)
+        .line   — 0-indexed line number
+        .column — 0-indexed column number
+
+## Usage pattern in this project
+
+  try {
+    const data = jsyaml.load(yamlText);
+    // data is a JS object / array / null
+  } catch (e) {
+    // e instanceof jsyaml.YAMLException
+    console.error(e.message);
+  }
+
+## CDN global
+
+  When loaded via <script> tag, the library is available as window.jsyaml.
+  No import/require needed. All methods accessed as jsyaml.load(), etc.
+
+## Notes
+
+  - jsyaml.load() accepts YAML 1.2 and most YAML 1.1 inputs.
+  - Unquoted integers are returned as JS numbers; coerce to string for display.
+  - Keys with ": " in unquoted strings are parsed as mappings — always quote
+    strings that contain colons followed by a space.
+  - Unknown/extra fields in the YAML are passed through silently — runtime
+    code simply ignores keys it does not recognise.
 
 Source: https://github.com/nodeca/js-yaml

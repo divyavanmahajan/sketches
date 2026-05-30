@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-*Sketches from Sweden* — a design handoff prototype for an artist portfolio site.
+*Sketches from Sweden* — artist portfolio site, self-manageable via YAML files on GitHub Pages.
 
 ## Docs
 
@@ -12,4 +12,4 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - [Product](docs/product.md) — goals, overview, user flows
 - [Init phase spec](docs/phase/init/spec.md) — full requirements for the YAML content system, help page, and GitHub Pages deployment
 - [Init phase summary](docs/phase/init/phase-summary.md) — what was built, key decisions, folder structure changes
-- [Design spec](design_handoff_sketch_portfolio/README.md) — color tokens, typography, spacing, layout rules, placeholder treatment, copy notes, and visual screenshots
+- Design spec archived on branch `archive/design-handoff` — color tokens, typography, spacing, layout rules, screenshots
